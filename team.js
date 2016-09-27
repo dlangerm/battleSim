@@ -6,7 +6,7 @@ var Schema = mongoose.Schema;
 var teamSchema = new Schema({
   // the score, basically how many people you have completed - dead
   score: {type: Number, default: 0},
-  name: {type: String, default: "team", unique: true},
+  name: {type: String, default: "team"},
 
   totalPoints: {type: Number, default: 10, min: 10, max: 100},
 
@@ -21,7 +21,7 @@ var teamSchema = new Schema({
   // which type of weapon is used by 60% of the team, evenly split between
   // the other two types
   weaponBias: {type: String, enum: ['ranged', 'one-handed', 'two-handed'],
-    default: 'left'}
+    default: 'one-handed'}
 
 },
 {toObject: {virtuals: true}, toJSON: {virtuals: true}, connect: 'teams'});
@@ -32,8 +32,9 @@ teamSchema.methods.createArmy = function(next) {
   var weaponType = ['ranged', 'one-handed', 'two-handed'];
   var boardSize = 200;
 
-  while (armySize < 1000) {
+  while (armySize < 10) {
     // rand in 0 to 50
+    console.log('creating soldier');
     var weaponFact = this.weaponAvg + Math.floor(Math.random() * (25));
     var armorhardness = this.armorAvg + Math.floor(Math.random() * (25));
 
@@ -63,7 +64,7 @@ teamSchema.methods.createArmy = function(next) {
       }
     });
 
-    --armySize;
+    armySize++;
   }
 };
 

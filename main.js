@@ -23,7 +23,7 @@ var morgan = require('morgan');
 var httpStatusCodes = require('http-status-codes');
 
 var app = express();
-app.use(bodyParser);
+app.use(bodyParser.json());
 app.use(morgan('combined'));
 
 // initialize the battle field, send team object, populate the soldier and team
@@ -41,12 +41,22 @@ app.route('/init')
     } else {
       // team a created
       var A = teamRetA;
+      teamRetA.createArmy(function(err) {
+        if (err) {
+          console.log(err);
+        }
+      });
 
       Team.create(teamB, function(err, teamRetB) {
         if (err) {
           console.log(err);
           res.status(httpStatusCodes.BAD_REQUEST).send();
         } else {
+          teamRetB.createArmy(function(err) {
+            if (err) {
+              console.log(err);
+            }
+          });
           console.log('Team B created');
           res.json({teamA: A, teamB: teamRetB});
         }
