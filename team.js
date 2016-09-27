@@ -1,5 +1,5 @@
 // the model for the team object
-var Soldier = require('soldier');
+var Soldier = require('./soldier');
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
@@ -27,41 +27,45 @@ var teamSchema = new Schema({
 {toObject: {virtuals: true}, toJSON: {virtuals: true}, connect: 'teams'});
 
 // creates each soldier and stores it in the database
-teamSchema.methods.createArmy(function(next) {
+teamSchema.methods.createArmy = function(next) {
   var armySize = 0;
   var weaponType = ['ranged', 'one-handed', 'two-handed'];
+  var boardSize = 200;
 
-  while (armySize < 100) {
+  while (armySize < 1000) {
+    // rand in 0 to 50
+    var weaponFact = this.weaponAvg + Math.floor(Math.random() * (25));
+    var armorhardness = this.armorAvg + Math.floor(Math.random() * (25));
+
     var soldierObj = {
       weapon: {
         // ranged can look ahead and shoot 2 spaces, 1 handed can attack forward,
         // two-handed can attack left right and forward, but has no chance to block
         weaponType: weaponType[0],
-        damage: 50 % 100
+        damage: weaponFact
       },
       armor: {
         // light = 30 +- 20, heavy = 70 +30 - 20, none = 0
-        hardness: {type: Number, min: 0, max: 100, required: true},
-        wear: {type: Number, min: 0, max: 100, default: 0, required: true}
+        hardness: armorhardness
       },
-      dead: {type: Boolean, default: false, required: true},
-
-      // surroundings
-      sight: {
-        left: {type: String, enum: ['friend', 'enemy', 'obstacle']},
-        right: {type: String, enum: ['friend', 'enemy', 'obstacle']},
-        fwd: {type: String, enum: ['friend', 'enemy', 'obstacle']},
-        back: {type: String, enum: ['friend', 'enemy', 'obstacle']},
-        bias: {type: String, enum: ['friend', 'enemy', 'obstacle']}
-      },
-      team: {type: Schema.Types.ObjectId, ref: 'Team', required: true},
+      dead: false,
+      team: this._id,
       // y position on the board
-      progress: {type: Number, default: 0, min: 0, max: 100, required: true},
-      xPosition: {type: Number, default: 50, min: 0, max: 100, required: true}
-    }
+      progress: 0,
+      xPosition: armySize % boardSize
+    };
+
+    Soldier.create(soldierObj, function(err, soldier) {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log(soldier);
+      }
+    });
+
     --armySize;
   }
-});
+};
 
 var team = mongoose.model('Team', teamSchema);
 module.exports = team;

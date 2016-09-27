@@ -9,8 +9,8 @@
 // ****************************************************************************//
 
 // battle object includes
-var Soldier = require('soldier');
-var Team = require('team');
+// var Soldier = require('./soldier');
+var Team = require('./team');
 
 // mongoose db set up
 var mongoose = require('mongoose');
